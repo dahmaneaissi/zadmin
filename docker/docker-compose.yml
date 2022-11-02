@@ -1,0 +1,39 @@
+version: '3.8'
+
+networks:
+  zadmin:
+
+services:
+  php-apache-service:
+    container_name: php-apache
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    depends_on:
+      - db-service
+    volumes:
+      - ../:/var/www/html/
+      - ./apache/apache2.conf:/etc/apache2/apache2.conf
+      - ./apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      - ./php/php.ini:/usr/local/etc/php/conf.d/php.ini
+      - ./logs/apache:/var/log/apache2
+    ports:
+      - 8080:80
+    networks:
+      - zadmin
+
+  db-service:
+    container_name: db
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: dbpwd
+    volumes:
+      - ./storage/database:/var/lib/mysql
+    ports:
+      - "9906:3306"
+    networks:
+      - zadmin
